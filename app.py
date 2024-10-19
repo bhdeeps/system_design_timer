@@ -175,4 +175,4 @@ def sequence():
     return render_template_string(TIMER_SEQUENCE_HTML, timers=timers)
 
 if __name__ == "__main__":
-    app.run(port=5001, debug=True)
+    app.run(host='0.0.0.0', port=5001)
