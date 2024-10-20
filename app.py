@@ -4,7 +4,42 @@ app = Flask(__name__)
 
 @app.route('/')
 def hello_world():
-    return "Hello, World!"
+    home_page_html = """
+    <!doctype html>
+    <html lang="en">
+      <head>
+        <meta charset="utf-8">
+        <title>Home Page</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+          }
+          h1 {
+            font-size: 2em;
+          }
+          a {
+            text-decoration: none;
+            color: white;
+            background-color: #007BFF;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 1.2em;
+          }
+          a:hover {
+            background-color: #0056b3;
+          }
+        </style>
+      </head>
+      <body>
+        <h1>Welcome to the System Design Timer App!</h1>
+        <p>Click the button below to access the system design timer:</p>
+        <a href="/sequence">Go to System Design Timer</a>
+      </body>
+    </html>
+    """
+    return render_template_string(home_page_html)
+
 
 @app.route('/error')
 def trigger_error():
