@@ -45,7 +45,6 @@ def hello_world():
 def trigger_error():
     raise ValueError('This is a deliberate error')
 
-# Updated HTML template with cleaner structure
 TIMER_SEQUENCE_HTML = """
 <!doctype html>
 <html lang="en">
@@ -81,10 +80,19 @@ TIMER_SEQUENCE_HTML = """
         padding: 10px 20px;
         margin-bottom: 20px;
       }
+      #overallTimer {
+        font-size: 3em;
+        margin-bottom: 20px;
+        color: red;
+      }
     </style>
   </head>
   <body>
     <button id="startButton">Start</button>
+    
+    <!-- Overall timer display -->
+    <div id="overallTimer">Total Time: 0:00</div>
+
     {% for label, minutes, seconds, content in timers %}
       <div class="timer-container" id="container{{ loop.index }}">
         <h2>{{ label }}</h2>
@@ -92,23 +100,41 @@ TIMER_SEQUENCE_HTML = """
         <div id="timer{{ loop.index }}" class="timer">{{ minutes }}:{{ seconds }}</div>
       </div>
     {% endfor %}
+    
     <script>
       document.getElementById('startButton').addEventListener('click', function() {
         const timers = {{ timers | tojson }};
+        let totalSeconds = timers.reduce((acc, timer) => acc + (timer[1] * 60 + timer[2]), 0);
         let currentIndex = 0;
 
+        // Display the overall timer
+        const overallTimerElement = document.getElementById('overallTimer');
+
+        function updateOverallTimer() {
+          const minutes = Math.floor(totalSeconds / 60);
+          const seconds = totalSeconds % 60;
+          overallTimerElement.innerText = `Total Time: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+          if (totalSeconds > 0) {
+            totalSeconds--;
+            setTimeout(updateOverallTimer, 1000);
+          }
+        }
+        
+        // Start updating the overall timer
+        updateOverallTimer();
+
         function startTimer(index) {
-          let totalSeconds = timers[index][1] * 60 + timers[index][2];
+          let sectionTotalSeconds = timers[index][1] * 60 + timers[index][2];
           const timerElement = document.getElementById(`timer${index + 1}`);
           const containerElement = document.getElementById(`container${index + 1}`);
           containerElement.style.display = 'block';
 
           function updateTimer() {
-            const minutes = Math.floor(totalSeconds / 60);
-            const seconds = totalSeconds % 60;
+            const minutes = Math.floor(sectionTotalSeconds / 60);
+            const seconds = sectionTotalSeconds % 60;
             timerElement.innerText = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-            if (totalSeconds > 0) {
-              totalSeconds--;
+            if (sectionTotalSeconds > 0) {
+              sectionTotalSeconds--;
               setTimeout(updateTimer, 1000);
             } else if (index < timers.length - 1) {
               containerElement.style.display = 'none';
@@ -125,6 +151,7 @@ TIMER_SEQUENCE_HTML = """
   </body>
 </html>
 """
+
 
 @app.route('/sequence')
 def sequence():
